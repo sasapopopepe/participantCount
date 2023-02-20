@@ -1,5 +1,11 @@
 function weeklyEventCheck() {
 
+    var lock = LockService.getScriptLock();
+    if (lock.tryLock(5000)) {
+        console.log("locked")
+        lock.releaseLock();
+    }
+
   let startDate = new Date()
   startDate.setHours(00)
   startDate.setMinutes(00)
@@ -52,6 +58,7 @@ function weeklyParticipantCount() {
       data[idx].push(participants[i][1])
     }
   }
+  // console.log(participants)
 
   var count = {}
   var participantsMember = {}
@@ -77,14 +84,16 @@ function weeklyParticipantCount() {
       participantsMember[i] = count
     }
   }
+  // console.log(participantsMember)
 
   var text = "Bot:投票終了\n@管理者 上記をコピペして連絡してください\n----------------------\n全体集計結果\n"
   var sendText = ""
   for(n=0;n<Object.keys(participantsMember).length;n++){
     let usernames = []
+    var key = Object.keys(participantsMember)[n]
 
-    for(m=0;m<Object.keys(participantsMember[n].member).length;m++) {
-      let url = "https://api.line.me/v2/bot/profile/" + Object.keys(participantsMember[n].member)[m]
+    for(m=0;m<Object.keys(participantsMember[key].member).length;m++) {
+      let url = "https://api.line.me/v2/bot/profile/" + Object.keys(participantsMember[key].member)[m]
       let params = {
         method:'GET',
         headers: {
@@ -94,19 +103,21 @@ function weeklyParticipantCount() {
       let responseData = UrlFetchApp.fetch(url, params).getContentText()
       usernames.push(JSON.parse(responseData).displayName)
     }
+
     // 文章修正時で毎回上のリクエスト送りたくないときはこっちを使用
     // usernames.push("test user name")
     // usernames.push("test user name2")
 
-    text += participantsMember[n].place + "\n参加人数：" + participantsMember[n].memberCount + "人\n(" + usernames + ") \n\n"
-    if((participantsMember[n].place).includes("(ピ)")) {
+    text += participantsMember[key].place + "\n参加人数：" + participantsMember[key].memberCount + "人\n(" + usernames + ") \n\n"
+    if((participantsMember[key].place).includes("(ピ)")) {
       const regex = /[^:]*/;
-      let place = (participantsMember[n].place).match(regex)
-      sendText += place + "の参加人数：" + participantsMember[n].memberCount + "人(" + usernames + ") です\n"      
+      let place = (participantsMember[key].place).match(regex)
+      sendText += place + "の参加人数：" + participantsMember[key].memberCount + "人(" + usernames + ") です\n"      
     }
   }
   sendText += "よろしくお願いします。"
 
+  // console.log(text + "send "+sendText)
   sendResultMessage(text, sendText)
 }
 

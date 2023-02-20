@@ -4,11 +4,12 @@ function sendVoteMessage(sendEvents) {
 
   var contents = []
 
+  const signature = signatureRegister()
+
   for (let i=0;i<sendEvents.length;i++) { 
-    contents.push({"type": "button","action": {"type": "postback","label": sendEvents[i],"data": year.getFullYear() + "/" + sendEvents[i]},"style": "secondary","height": "sm"})
+    contents.push({"type": "button","action": {"type": "postback","label": sendEvents[i],"data": year.getFullYear() + "/" + sendEvents[i] + "$" + signature},"style": "secondary","height": "sm"})
+    // contents.push({"type": "button","action": {"type": "postback","label": sendEvents[i],"data": year.getFullYear() + "/" + sendEvents[i]},"style": "secondary","height": "sm"})
   }
-  
-  Logger.log(contents)
 
   contents.push({
     "type": "button",
@@ -47,7 +48,7 @@ function sendVoteMessage(sendEvents) {
               "contents": [
                 {
                   "type": "text",
-                  "text": "参加する日をタップしてください。(投票に少しラグあり)金曜日12時締切。間違えてタップした場合はもう一度タップしてください(奇数回送信者が反映される仕組み)",
+                  "text": "参加する日をタップしてください。(投票に約7秒ラグあり)金曜日12時締切。間違えてタップした場合はもう一度タップしてください(奇数回送信者が反映される仕組み)",
                   "color": "#aaaaaa",
                   "size": "sm",
                   "flex": 1,
@@ -91,6 +92,25 @@ function sendVoteMessage(sendEvents) {
   }
 
   UrlFetchApp.fetch(url, params)
+
+}
+
+function signatureRegister() {
+  // https://developers.google.com/apps-script/reference/utilities/utilities?hl=ja#computeHmacSha256Signature(Byte,Byte)
+  
+  let key = channelSecret
+  let value = Utilities.getUuid()
+
+  sigunatureSheet.getRange(2,1).setValue(value)
+
+  let signature = Utilities.computeHmacSha256Signature(value, key);
+  let sig = signature.reduce(function(str,chr){
+    chr = (chr < 0 ? chr + 256 : chr).toString(16);
+    return str + (chr.length==1?'0':'') + chr;
+  },'');
+
+  console.log(sig)
+  return sig
 
 }
 

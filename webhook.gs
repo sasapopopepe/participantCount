@@ -1,14 +1,14 @@
 function doPost(e) {
   let event = JSON.parse(e.postData.contents).events[0];
 
-  // TODO: signatureCheck(event)
-
   // TODO: メンバー参加時に出るポップ
   // https://developers.line.biz/ja/reference/messaging-api/#member-joined-event
 
-  debugSheet.getRange(debugSheet.getLastRow(),1).setValue(event)
+  debugSheet.getRange(debugSheet.getLastRow()+1,1).setValue(event)
 
   if(event.type === "postback") {
+    const sigCheckResult = signatureCheck(event.postback.data.split("$")[1])
+    if(!sigCheckResult){return false}
     participant(event)
   }
 
@@ -19,19 +19,19 @@ function doPost(e) {
   }
 }
 
-function signatureCheck(event) {
-  // https://developers.google.com/apps-script/reference/utilities/utilities?hl=ja#computeHmacSha256Signature(Byte,Byte)
-  event = "{timestamp=1.676748892506E12, webhookEventId=xxxx, mode=active, replyToken=yyyy, deliveryContext={isRedelivery=false}, source={userId=bbbb, type=group, groupId=wwww}, postback={data=2023/1/26(日)12-15時:卓球}, type=postback}"
-  
+function signatureCheck(postSigunature) {
   let key = channelSecret
-  let input = event
-  let signature = Utilities.computeHmacSha256Signature(input, key);
+  let value = sigunatureSheet.getRange(2,1).getValue()
+  let signature = Utilities.computeHmacSha256Signature(value, key);
   let sig = signature.reduce(function(str,chr){
     chr = (chr < 0 ? chr + 256 : chr).toString(16);
     return str + (chr.length==1?'0':'') + chr;
   },'');
 
-  Logger.log(sig);
+  // debugSheet.getRange(debugSheet.getLastRow()+1,2).setValue("postSigunature is "+postSigunature)
+  // debugSheet.getRange(debugSheet.getLastRow()+1,3).setValue("sig            is "+sig)
+
+  return (sig === postSigunature)
 
 }
 
@@ -46,7 +46,8 @@ function participant(event) {
   let responseData = UrlFetchApp.fetch(url, params).getContentText()
   let username = JSON.parse(responseData).displayName
 
-  let date = event.postback.data
+  // let date = event.postback.data
+  let date = event.postback.data.split("$")[0]
   setParticipant(date, username, event.source.userId)
   postParticipant(date, username, event.source.userId)
 }
