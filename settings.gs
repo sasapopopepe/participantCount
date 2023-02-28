@@ -5,8 +5,8 @@ const accessToken = PropertiesService.getScriptProperties().getProperty('accessT
 const myId = PropertiesService.getScriptProperties().getProperty('myId')
 const channelSecret = PropertiesService.getScriptProperties().getProperty('channelSecret')
 
-// stg
-const groupId = PropertiesService.getScriptProperties().getProperty('testgroupId')
+// stgに切り替えるときはtestgroupIdにする
+const groupId = PropertiesService.getScriptProperties().getProperty('groupId')
 
 // For google Calander
 const calendarId = PropertiesService.getScriptProperties().getProperty('calendarId')
@@ -17,3 +17,4 @@ let idSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('idSheet')
 let countPeopleSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('countPeople')
 let debugSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('debug')
 let sigunatureSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('sigunature')
+let participaintLogSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('participaintLog')

@@ -1,10 +1,11 @@
 function weeklyEventCheck() {
 
-    var lock = LockService.getScriptLock();
-    if (lock.tryLock(5000)) {
-        console.log("locked")
-        lock.releaseLock();
-    }
+  // https://gist.github.com/xl1/6d5f120c42be56b215f1
+  var lock = LockService.getScriptLock();
+  if (lock.tryLock(5000)) {
+    // console.log("locked")
+    lock.releaseLock();
+  }
 
   let startDate = new Date()
   startDate.setHours(00)
@@ -13,11 +14,13 @@ function weeklyEventCheck() {
   startDate.setMilliseconds(00)
   startDate.setDate(startDate.getDate() +5)
   let endDate = new Date()
+  console.log(startDate +"\nEnddate is "+ endDate)
   endDate.setHours(00)
   endDate.setMinutes(00)
   endDate.setSeconds(00)
   endDate.setMilliseconds(00)
-  endDate.setDate(startDate.getDate() +7)
+  endDate.setDate(endDate.getDate() +12)
+  console.log(startDate +"\nEnddate is "+ endDate)
 
   const events = calendar.getEvents(startDate, endDate);
   var sendEvents = []
@@ -29,7 +32,7 @@ function weeklyEventCheck() {
       let title = events[event].getTitle();
       
       if(/卓球/g.test(title)) {
-        let month = events[event].getStartTime().getMonth()
+        let month = events[event].getStartTime().getMonth()+1
         let day = events[event].getStartTime().getDate()
         let dayOfWeek = dayOfWeeks[events[event].getStartTime().getDay()]
         let startHour = events[event].getStartTime().getHours()
@@ -38,11 +41,14 @@ function weeklyEventCheck() {
         sendEvents.push(month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title)
       }
     }
+    // console.log(sendEvents)
+    sendVoteMessage(sendEvents)
   }
-  sendVoteMessage(sendEvents)
 }
 
 function weeklyParticipantCount() {
+  if(countPeopleSheet.getRange("A2").isBlank()) {return}
+
   const participants = countPeopleSheet.getRange(2, 1, countPeopleSheet.getLastRow()-1, 2).getValues();
   var data = []
   var m = 0
@@ -109,6 +115,8 @@ function weeklyParticipantCount() {
     // usernames.push("test user name2")
 
     text += participantsMember[key].place + "\n参加人数：" + participantsMember[key].memberCount + "人\n(" + usernames + ") \n\n"
+    writeParticipantLog(participantsMember[key].place, usernames)
+
     if((participantsMember[key].place).includes("(ピ)")) {
       const regex = /[^:]*/;
       let place = (participantsMember[key].place).match(regex)
@@ -116,9 +124,22 @@ function weeklyParticipantCount() {
     }
   }
   sendText += "よろしくお願いします。"
-
   // console.log(text + "send "+sendText)
+
   sendResultMessage(text, sendText)
+}
+
+function writeParticipantLog(place, usernames) {
+  const dateRegex = /[^:]*/
+  const placeRegex = /(?<=:)(.*)/
+  let date = (place).match(dateRegex)
+  let placeContent = (place).match(placeRegex)
+
+  const writeRow = participaintLogSheet.getLastRow()+1
+  participaintLogSheet.getRange(writeRow,1).setValue(date)
+  participaintLogSheet.getRange(writeRow,2).setValue(placeContent)
+  participaintLogSheet.getRange(writeRow,4).setValue(usernames)
+
 }
 
 

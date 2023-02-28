@@ -142,7 +142,7 @@ function sendResultMessage(text, sendText) {
 
   let responseData = UrlFetchApp.fetch(url, params)
 
-  if(responseData.getResponseCode() === 200) {
+  if(responseData.getResponseCode() === 200 && !countPeopleSheet.getRange("A2").isBlank()) {
     countPeopleSheet.getRange(2, 1, countPeopleSheet.getLastRow()-1, 3).clearContent();
   }
 }
