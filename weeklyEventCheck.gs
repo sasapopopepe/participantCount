@@ -25,21 +25,29 @@ function weeklyEventCheck() {
   const events = calendar.getEvents(startDate, endDate);
   var sendEvents = []
   var dayOfWeeks = [ "日", "月", "火", "水", "木", "金", "土" ]
+  var count = 1
   if (events.length !== 0) {
     // 予定の件数だけ実行
     for (event in events) {
       // 予定のタイトルを取得
       let title = events[event].getTitle();
-      
+
       if(/卓球/g.test(title)) {
+        let year = events[event].getStartTime().getFullYear()
         let month = events[event].getStartTime().getMonth()+1
         let day = events[event].getStartTime().getDate()
         let dayOfWeek = dayOfWeeks[events[event].getStartTime().getDay()]
         let startHour = events[event].getStartTime().getHours()
         let endHour = events[event].getEndTime().getHours()
+        let eventDetail = month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title
 
-        sendEvents.push(month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title)
+        countListSheet.getRange(3,count).setValue(year + "/" + eventDetail)
+        eventDetail = month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title + ";" + year
+        count++
+        
+        sendEvents.push(eventDetail)
       }
+
     }
     // console.log(sendEvents)
     sendVoteMessage(sendEvents)
@@ -134,6 +142,7 @@ function writeParticipantLog(place, usernames) {
   const placeRegex = /(?<=:)(.*)/
   let date = (place).match(dateRegex)
   let placeContent = (place).match(placeRegex)
+  usernames = usernames.join(',')
 
   const writeRow = participaintLogSheet.getLastRow()+1
   participaintLogSheet.getRange(writeRow,1).setValue(date)

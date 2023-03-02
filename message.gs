@@ -1,26 +1,45 @@
 function sendVoteMessage(sendEvents) {
 
-  let year = new Date()
-
   var contents = []
 
   const signature = signatureRegister()
+  const yearRegex = /(?<=;)(.*)/gi
+  const labelRegex = /[^;]*/
+  let year = ""
+  let labelData = ""
 
-  for (let i=0;i<sendEvents.length;i++) { 
-    contents.push({"type": "button","action": {"type": "postback","label": sendEvents[i],"data": year.getFullYear() + "/" + sendEvents[i] + "$" + signature},"style": "secondary","height": "sm"})
+  for (i=0;i<sendEvents.length;i++) { 
+    year = sendEvents[i].match(yearRegex)
+    labelData = sendEvents[i].match(labelRegex)
+    // debugSheet.getRange(debugSheet.getLastRow()+1,1).setValue("labelData is: "+ labelData)
+
+    contents.push({"type": "button","action": {"type": "postback","label": labelData[0],"data": year[0] + "/" + labelData[0] + "$" + signature},"style": "secondary","height": "sm"})
     // contents.push({"type": "button","action": {"type": "postback","label": sendEvents[i],"data": year.getFullYear() + "/" + sendEvents[i]},"style": "secondary","height": "sm"})
   }
 
-  contents.push({
-    "type": "button",
-    "action": {
-      "type": "message",
-      "label": "数秒後に投票通知が出ない場合",
-      "text": "投票Botを友達追加してください"
-    },
-    "style": "link",
-    "height": "sm"
-  })
+  // debugSheet.getRange(debugSheet.getLastRow()+1,1).setValue(contents)
+
+  contents.push(
+    {
+      "type": "button",
+      "action": {
+        "type": "message",
+        "label": "数秒後に投票通知が出ない場合",
+        "text": "投票Botを友達追加してください"
+      },
+      "style": "link",
+      "height": "sm"
+    },{
+      "type": "button",
+      "style": "link",
+      "height": "sm",
+      "action": {
+        "type": "uri",
+        "label": "投票確認LINK",
+        "uri": "https://docs.google.com/spreadsheets/d/" + countListSheetId +"/edit?usp=sharing"
+      }
+    }
+  )
 
   // コピペ始まり
   let richText = {
@@ -143,7 +162,8 @@ function sendResultMessage(text, sendText) {
   let responseData = UrlFetchApp.fetch(url, params)
 
   if(responseData.getResponseCode() === 200 && !countPeopleSheet.getRange("A2").isBlank()) {
-    countPeopleSheet.getRange(2, 1, countPeopleSheet.getLastRow()-1, 3).clearContent();
+    countPeopleSheet.getRange(2, 1, countPeopleSheet.getLastRow()-1, 3).clearContent()
+    countListSheet.getRange(3,1,countListSheet.getLastRow(),countListSheet.getLastColumn()).clearContent()
   }
 }
 

@@ -1,4 +1,10 @@
 function doPost(e) {
+  var lock = LockService.getScriptLock();
+  if (lock.tryLock(500)) {
+    // console.log("locked")
+    lock.releaseLock();
+  }
+
   let event = JSON.parse(e.postData.contents).events[0];
 
   // TODO: メンバー参加時に出るポップ
@@ -49,7 +55,7 @@ function participant(event) {
   // let date = event.postback.data
   let date = event.postback.data.split("$")[0]
   setParticipant(date, username, event.source.userId)
-  postParticipant(date, username, event.source.userId)
+  postParticipant(date, username)
 }
 
 function setParticipant(date, username, userId) {
@@ -59,50 +65,31 @@ function setParticipant(date, username, userId) {
   countPeopleSheet.getRange(setRow,3).setValue(username)
 }
 
-function postParticipant(date, username, userId) {
+function postParticipant(date, username) {
 
-  let url = "https://api.line.me/v2/bot/message/push"
-
-  let countData = countPeopleSheet.getRange(2,1, countPeopleSheet.getLastRow()-1, 2).getValues()
-  var count = 0
-  for(i=0;i<countData.length;i++){
-    if(date === countData[i][0] && userId === countData[i][1]) {
-      count++
+  let places = countListSheet.getRange(3,1,1,countListSheet.getLastColumn()).getValues()
+  let n=1
+  for(i=0;i<places[0].filter(String).length;i++){
+    if(places[0][i] === date) {
+      break
+    } else {
+      n++
     }
   }
-  if(count % 2 === 1) {
-    var payload = {
-      to: groupId,
-      messages:[
-        {
-          type:"text",
-          text:username+"さんが"+date+"参加と投票しました"
-        }
-      ]
+  
+  let data = countListSheet.getRange(4,n,countListSheet.getLastRow()).getValues().flat()
+
+  if(data.includes(username)) {
+    for(i=0;i<data.filter(String).length;i++){
+      if(data[i] === username) {
+        const delCell = countListSheet.getRange(i+4, n)
+        delCell.deleteCells(SpreadsheetApp.Dimension.ROWS)
+      }
     }
   } else {
-    var payload = {
-      to: groupId,
-      messages:[
-        {
-          type:"text",
-          text:username+"さんが"+date+"参加の投票を取り消しました"
-        }
-      ]
-    }
+    index = (data.filter(String).length)+3
+    countListSheet.getRange(index+1,n).setValue(username)
   }
-
-  let params = {
-    method:'POST',
-    contentType: 'application/json',
-    headers: {
-      Authorization: 'Bearer ' + accessToken
-    },
-    payload:(JSON.stringify(payload))
-  }
-
-  debugSheet.getRange(1,4).setValue(params)
-  UrlFetchApp.fetch(url, params)
 }
 
 // Get userId, groupId function

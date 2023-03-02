@@ -18,3 +18,6 @@ let countPeopleSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('cou
 let debugSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('debug')
 let sigunatureSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('sigunature')
 let participaintLogSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('participaintLog')
+
+const countListSheetId = PropertiesService.getScriptProperties().getProperty('countListSheetId')
+let countListSheet = SpreadsheetApp.openById(countListSheetId).getSheetByName('list')
