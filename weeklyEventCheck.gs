@@ -1,56 +1,61 @@
 function weeklyEventCheck() {
+  const countJsonData = getCountListSheet()
+  const countListSheetId = countJsonData.countListSheetId
+  const countListSheet = countJsonData.countListSheet
+  const calendar = getCalendar()
 
   // https://gist.github.com/xl1/6d5f120c42be56b215f1
   var lock = LockService.getScriptLock();
-  if (lock.tryLock(5000)) {
-    // console.log("locked")
-    lock.releaseLock();
-  }
+  if (lock.tryLock(500)) {
 
-  let startDate = new Date()
-  startDate.setHours(00)
-  startDate.setMinutes(00)
-  startDate.setSeconds(00)
-  startDate.setMilliseconds(00)
-  startDate.setDate(startDate.getDate() +5)
-  let endDate = new Date()
-  console.log(startDate +"\nEnddate is "+ endDate)
-  endDate.setHours(00)
-  endDate.setMinutes(00)
-  endDate.setSeconds(00)
-  endDate.setMilliseconds(00)
-  endDate.setDate(endDate.getDate() +12)
-  console.log(startDate +"\nEnddate is "+ endDate)
+    let startDate = new Date()
+    startDate.setHours(00)
+    startDate.setMinutes(00)
+    startDate.setSeconds(00)
+    startDate.setMilliseconds(00)
+    startDate.setDate(startDate.getDate() +5)
+    let endDate = new Date()
+    console.log(startDate +"\nEnddate is "+ endDate)
+    endDate.setHours(00)
+    endDate.setMinutes(00)
+    endDate.setSeconds(00)
+    endDate.setMilliseconds(00)
+    endDate.setDate(endDate.getDate() +12)
+    console.log(startDate +"\nEnddate is "+ endDate)
 
-  const events = calendar.getEvents(startDate, endDate);
-  var sendEvents = []
-  var dayOfWeeks = [ "日", "月", "火", "水", "木", "金", "土" ]
-  var count = 1
-  if (events.length !== 0) {
-    // 予定の件数だけ実行
-    for (event in events) {
-      // 予定のタイトルを取得
-      let title = events[event].getTitle();
+    const events = calendar.getEvents(startDate, endDate)
 
-      if(/卓球/g.test(title)) {
-        let year = events[event].getStartTime().getFullYear()
-        let month = events[event].getStartTime().getMonth()+1
-        let day = events[event].getStartTime().getDate()
-        let dayOfWeek = dayOfWeeks[events[event].getStartTime().getDay()]
-        let startHour = events[event].getStartTime().getHours()
-        let endHour = events[event].getEndTime().getHours()
-        let eventDetail = month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title
+    var sendEvents = []
+    var dayOfWeeks = [ "日", "月", "火", "水", "木", "金", "土" ]
+    var count = 1
+    if (events.length !== 0) {
+      // 予定の件数だけ実行
+      for (event in events) {
+        // 予定のタイトルを取得
+        let title = events[event].getTitle();
 
-        countListSheet.getRange(3,count).setValue(year + "/" + eventDetail)
-        eventDetail = month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title + ";" + year
-        count++
-        
-        sendEvents.push(eventDetail)
+        if(/卓球/g.test(title)) {
+          let year = events[event].getStartTime().getFullYear()
+          let month = events[event].getStartTime().getMonth()+1
+          let day = events[event].getStartTime().getDate()
+          let dayOfWeek = dayOfWeeks[events[event].getStartTime().getDay()]
+          let startHour = events[event].getStartTime().getHours()
+          let endHour = events[event].getEndTime().getHours()
+          let eventDetail = month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title
+
+          countListSheet.getRange(3,count).setValue(year + "/" + eventDetail)
+          eventDetail = month + "/" + day + "(" + dayOfWeek + ")" + startHour +"-"+ endHour + "時:" + title + ";" + year
+          count++
+          
+          sendEvents.push(eventDetail)
+        }
+
       }
-
+      // console.log(sendEvents)
+      sendVoteMessage(sendEvents, countListSheetId)
     }
-    // console.log(sendEvents)
-    sendVoteMessage(sendEvents)
+      // console.log("locked")
+    lock.releaseLock();
   }
 }
 
@@ -62,7 +67,7 @@ function weeklyParticipantCount() {
   var m = 0
   var idx = 0
   for(i=0;i<participants.length;i++) {
-    let result = data.find((place, index) => {if(place[0]　== participants[i][0]){idx = index; return place[0]}})
+    let result = data.find((place, index) => {if(place[0] == participants[i][0]){idx = index; return place[0]}})
     if(typeof result === 'undefined') {
       data[m] = []
       data[m][0] = participants[i][0]
@@ -150,10 +155,3 @@ function writeParticipantLog(place, usernames) {
   participaintLogSheet.getRange(writeRow,4).setValue(usernames)
 
 }
-
-
-
-
-
-
-

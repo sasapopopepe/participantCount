@@ -1,9 +1,6 @@
 function doPost(e) {
-  var lock = LockService.getScriptLock();
+  var lock = LockService.getUserLock()
   if (lock.tryLock(500)) {
-    // console.log("locked")
-    lock.releaseLock();
-  }
 
   let event = JSON.parse(e.postData.contents).events[0];
 
@@ -18,10 +15,15 @@ function doPost(e) {
     participant(event)
   }
 
-  let message = event.message.text
-  const getIdRegex = new RegExp('getId', 'gi');
-  if(getIdRegex.test(message)) {
-    getId(event)
+  if(event.type === "message") {
+    let message = event.message.text
+    const getIdRegex = new RegExp('getId', 'gi');
+    if(getIdRegex.test(message)) {
+      getId(event)
+    }
+  }
+      // console.log("locked")
+    lock.releaseLock();
   }
 }
 
@@ -66,6 +68,8 @@ function setParticipant(date, username, userId) {
 }
 
 function postParticipant(date, username) {
+  const countJsonData = getCountListSheet()
+  let countListSheet = countJsonData.countListSheet
 
   let places = countListSheet.getRange(3,1,1,countListSheet.getLastColumn()).getValues()
   let n=1
@@ -115,6 +119,3 @@ function getId(event) {
   idSheet.getRange(setRow,1).setValue(channelName)
   idSheet.getRange(setRow,2).setValue(id)
 }
-
-
-

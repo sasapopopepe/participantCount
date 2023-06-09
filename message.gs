@@ -1,4 +1,4 @@
-function sendVoteMessage(sendEvents) {
+function sendVoteMessage(sendEvents, countListSheetId) {
 
   var contents = []
 
@@ -21,15 +21,6 @@ function sendVoteMessage(sendEvents) {
 
   contents.push(
     {
-      "type": "button",
-      "action": {
-        "type": "message",
-        "label": "数秒後に投票通知が出ない場合",
-        "text": "投票Botを友達追加してください"
-      },
-      "style": "link",
-      "height": "sm"
-    },{
       "type": "button",
       "style": "link",
       "height": "sm",
@@ -67,7 +58,7 @@ function sendVoteMessage(sendEvents) {
               "contents": [
                 {
                   "type": "text",
-                  "text": "参加する日をタップしてください。(投票に約7秒ラグあり)金曜日12時締切。間違えてタップした場合はもう一度タップしてください(奇数回送信者が反映される仕組み)",
+                  "text": "最初に卓球参加投票Botを追加し、参加日を投票してください(投票に約7秒ラグあり)。金曜日12時〆。間違えたらもう一度タップしてください(奇数回送信者が反映される)。「投票確認LINK」にて、投票結果状況が確認できます",
                   "color": "#aaaaaa",
                   "size": "sm",
                   "flex": 1,
@@ -134,6 +125,8 @@ function signatureRegister() {
 }
 
 function sendResultMessage(text, sendText) {
+  const countJsonData = getCountListSheet()
+  const countListSheet = countJsonData.countListSheet
 
   let payload = {
     "to": groupId,
@@ -166,10 +159,3 @@ function sendResultMessage(text, sendText) {
     countListSheet.getRange(3,1,countListSheet.getLastRow(),countListSheet.getLastColumn()).clearContent()
   }
 }
-
-
-
-
-
-
-
