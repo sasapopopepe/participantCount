@@ -1,12 +1,13 @@
 
 // For LINE Bot
 const accessToken = PropertiesService.getScriptProperties().getProperty('accessToken')
-// LINE dev内でuserIdと呼ばれているid
+// 開発者（私）のstg botでのuserId
 const myId = PropertiesService.getScriptProperties().getProperty('myId')
 const channelSecret = PropertiesService.getScriptProperties().getProperty('channelSecret')
 
 // stgに切り替えるときはtestgroupIdにする
 const groupId = PropertiesService.getScriptProperties().getProperty('groupId')
+const resultRecipientId = PropertiesService.getScriptProperties().getProperty('makichi_id')
 
 // For SpreadSheet
 let idSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('idSheet')

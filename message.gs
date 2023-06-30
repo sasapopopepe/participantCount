@@ -129,7 +129,7 @@ function sendResultMessage(text, sendText) {
   const countListSheet = countJsonData.countListSheet
 
   let payload = {
-    "to": groupId,
+    "to": resultRecipientId,
     "messages":[
       {
         "type":"text",
