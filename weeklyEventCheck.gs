@@ -105,7 +105,7 @@ function weeklyParticipantCount() {
   }
   // console.log(participantsMember)
 
-  var text = "Bot:投票終了\n@管理者 上記をコピペして連絡してください\n----------------------\n全体集計結果\n"
+  var text = "投票終了\n---------------------------\n"
   var sendText = ""
   for(n=0;n<Object.keys(participantsMember).length;n++){
     let usernames = []
@@ -127,8 +127,8 @@ function weeklyParticipantCount() {
     // usernames.push("test user name")
     // usernames.push("test user name2")
 
-    text += participantsMember[key].place + "\n参加人数：" + participantsMember[key].memberCount + "人\n(" + usernames + ") \n\n"
-    writeParticipantLog(participantsMember[key].place, usernames)
+    text += participantsMember[key].place + "\n参加人数：" + participantsMember[key].memberCount + "人\n(" + usernames + ") \n"
+    text += writeParticipantLog(participantsMember[key].place, usernames)
 
     if((participantsMember[key].place).includes("(ピ)")) {
       const regex = /[^:]*/;
@@ -140,6 +140,7 @@ function weeklyParticipantCount() {
   // console.log(text + "send "+sendText)
 
   sendResultMessage(text, sendText)
+  sigunatureSheet.getRange(2,1).setValue("")
 }
 
 function writeParticipantLog(place, usernames) {
@@ -154,4 +155,27 @@ function writeParticipantLog(place, usernames) {
   participaintLogSheet.getRange(writeRow,2).setValue(placeContent)
   participaintLogSheet.getRange(writeRow,4).setValue(usernames)
 
+  participaintLogSheet.getRange(writeRow,3).setValue('=LEN(D'+(writeRow)+')-LEN(SUBSTITUTE(D'+(writeRow)+',",",""))+1')
+
+  const gymFee = '=iferror(index($B$3:$G$9,match(REGEXEXTRACT(B'+(writeRow)+',"北スポ|味舌[AB]面|味舌第二"),$A$3:$A$9,0)'
+                           +',match(mid(A'+(writeRow)+',find(")",A'+(writeRow)+',1)+1,6),$B$2:$E$2,0)),"-")'
+  participaintLogSheet.getRange(writeRow,5).setValue(gymFee)
+
+  participaintLogSheet.getRange(writeRow,6).setValue('=roundup(($E'+(writeRow)+'/$C'+(writeRow)+')+100,-1)')
+
+  return "体育館料金: "+  participaintLogSheet.getRange(writeRow,5).getValue().toLocaleString() + "円\n1人当たりの金額: "+ participaintLogSheet.getRange(writeRow,6).getValue().toLocaleString() + "円\n\n"
+
+
+
+
+
+
+  
 }
+
+
+
+
+
+
+
