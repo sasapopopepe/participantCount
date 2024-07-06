@@ -66,6 +66,8 @@ function weeklyParticipantCount() {
   var data = []
   var m = 0
   var idx = 0
+
+  // countPeopleシートの多次元配列化
   for(i=0;i<participants.length;i++) {
     let result = data.find((place, index) => {if(place[0] == participants[i][0]){idx = index; return place[0]}})
     if(typeof result === 'undefined') {
@@ -77,25 +79,41 @@ function weeklyParticipantCount() {
       data[idx].push(participants[i][1])
     }
   }
-  // console.log(participants)
 
   var count = {}
   var participantsMember = {}
+
+  // 場所ごとに整理する
   for(i=0;i<data.length;i++){
     count = {}
-    count.place = data[i][0]
     count.member = {}
+
+    // 場所を入れる
+    count.place = data[i][0]
+
+    // 何回投票されたか確認する
     for(n=1;n<data[i].length;n++){
       let elm = data[i][n]
       count.member[elm] = (count.member[elm] || 0)+1
     }
 
+    let deleteKeys = []
+    let deleteCount = 0
+
+    // 偶数投票者を削除する
     for(n=0;n<Object.keys(count.member).length;n++){
 
+      // 削除者のJSON Key部分の抽出
       if(Object.values(count.member)[n] % 2 === 0) {
-        let deleteKey = Object.keys(count.member)[n]
-        delete count.member[deleteKey]
+
+        deleteKeys[deleteCount] = Object.keys(count.member)[n]
+        deleteCount++
       }
+    }
+
+    // 実際に削除する
+    for(m=0;m<deleteKeys.length;m++){
+      delete count.member[deleteKeys[m]]
     }
 
     if(Object.keys(count.member).length > 0) {
@@ -122,10 +140,6 @@ function weeklyParticipantCount() {
       let responseData = UrlFetchApp.fetch(url, params).getContentText()
       usernames.push(JSON.parse(responseData).displayName)
     }
-
-    // 文章修正時で毎回上のリクエスト送りたくないときはこっちを使用
-    // usernames.push("test user name")
-    // usernames.push("test user name2")
 
     text += participantsMember[key].place + "\n参加人数：" + participantsMember[key].memberCount + "人\n(" + usernames + ") \n"
     text += writeParticipantLog(participantsMember[key].place, usernames)
@@ -165,12 +179,6 @@ function writeParticipantLog(place, usernames) {
 
   return "体育館料金: "+  participaintLogSheet.getRange(writeRow,5).getValue().toLocaleString() + "円\n1人当たりの金額: "+ participaintLogSheet.getRange(writeRow,6).getValue().toLocaleString() + "円\n\n"
 
-
-
-
-
-
-  
 }
 
 
