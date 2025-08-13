@@ -1,0 +1,46 @@
+# 部活投票反映スクリプト
+
+## folderの内容
+
+### questionnaireVote
+
+- 集計された投票をログに移す
+- Google Docsに投票内容を反映（→iPhoneショートカット実行）
+- 時間triggerの設定
+
+### returnVoteResult(googleDoc)
+
+- デプロイ済
+- GETでJSONを返す
+
+### 投票アンケート/アンケートに紐づくスプレットシートのgas
+
+- アンケート送信がtrigger(submitForm)
+- 投票をスプレットシートに反映する
+
+## funciton系
+
+必要になると思われるものだけ記載
+
+### createQuestionnaire()
+
+1. googleカレンダーを取得
+2. googleフォームにEventを追加
+3. スプレットシートにEventを追加
+
+- 体育館の予約を取るごとに随時実行して大丈夫（必要なものが消えないようになってる）
+
+### resultPost()
+
+1. 今日0:00～次の日0:00を取得
+2. Eventがあれば集計結果を成型
+3. 結果をログに移行
+4. 参加費などを含めてgoogle Docsに転写
+5. （iPhoneのショートカットキーでLINE投稿）
+
+- 実行すると結果が作成されてgoogleフォームと集計シートから結果分消えるので注意
+
+## 課題
+
+- createQuestionnaire()は随時追加の際にsortしない（gasに入れ替え系の関数は無く、for文組むのが怖い）
+- releaseLockしてないので10時ぴったりにアンケート回答された時の挙動が未知数（デッドロックしないか分からん）
